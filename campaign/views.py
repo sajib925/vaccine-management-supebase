@@ -6,22 +6,39 @@ from .models import CampaignModel, VaccinesModel
 from .serializers import CampaignModelSerializer, VaccinesModelSerializer
 from rest_framework.permissions import IsAuthenticated
 
+# class CampaignList(APIView):
+#
+#     def get(self, request, format=None):
+#         campaigns = CampaignModel.objects.all()
+#         serializer = CampaignModelSerializer(campaigns, many=True)
+#         return Response(serializer.data)
+#
+#     def post(self, request, format=None):
+#         if not hasattr(request.user, 'doctor'):
+#             return Response({"detail": "Only doctors can create vaccines."}, status=status.HTTP_403_FORBIDDEN)
+#
+#         doctor = request.user.doctor
+#         serializer = CampaignModelSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save(doctor=doctor)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class CampaignList(APIView):
 
     def get(self, request, format=None):
         campaigns = CampaignModel.objects.all()
-        serializer = CampaignModelSerializer(campaigns, many=True)
+        serializer = CampaignModelSerializer(campaigns, many=True, context={'request': request})
         return Response(serializer.data)
 
     def post(self, request, format=None):
         if not hasattr(request.user, 'doctor'):
             return Response({"detail": "Only doctors can create vaccines."}, status=status.HTTP_403_FORBIDDEN)
 
-        doctor = request.user.doctor
-        serializer = CampaignModelSerializer(data=request.data)
+        serializer = CampaignModelSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save(doctor=doctor)
+            serializer.save(doctor=request.user.doctor)  # Pass the doctor directly
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
