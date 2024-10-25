@@ -25,7 +25,40 @@ class CampaignList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class CampaignDetail(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get_object(self, pk):
+        try:
+            return CampaignModel.objects.get(pk=pk)
+        except CampaignModel.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        vaccine = self.get_object(pk)
+        serializer = CampaignModelSerializer(vaccine)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+
+        if not hasattr(request.user, 'doctor'):
+            return Response({"detail": "Only doctors can update campaign."}, status=status.HTTP_403_FORBIDDEN)
+
+        campaign = self.get_object(pk)
+        serializer = CampaignModelSerializer(campaign, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+
+        if not hasattr(request.user, 'doctor'):
+            return Response({"detail": "Only doctors can delete campaign."}, status=status.HTTP_403_FORBIDDEN)
+
+        campaign = self.get_object(pk)
+        campaign.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class VaccineList(APIView):
