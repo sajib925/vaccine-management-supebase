@@ -17,8 +17,11 @@ class CampaignModelSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'image', 'description', 'created_at', 'updated_at', 'doctor_username']
 
     def create(self, validated_data):
-        doctor = self.context['request'].user.doctor
-        campaign = CampaignModel.objects.create(doctor=doctor, **validated_data)
+        # Remove the doctor field from validated_data if it exists
+        validated_data.pop('doctor', None)  # Ensure doctor is not part of validated_data
+        doctor = self.context['request'].user.doctor  # Get doctor from request context
+        # Create the campaign with the doctor assigned
+        campaign = CampaignModel.objects.create(doctor=doctor, **validated_data)  # Assign doctor while creating
         return campaign
 
 
