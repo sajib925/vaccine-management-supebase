@@ -4,6 +4,7 @@ from .models import CampaignModel, VaccinesModel
 
 
 class CampaignModelSerializer(serializers.ModelSerializer):
+    doctor_username = serializers.ReadOnlyField(source='doctor.username')
     class Meta:
         model = CampaignModel
         fields = ['id', 'name', 'image', 'description', 'created_at', 'updated_at']
