@@ -2,6 +2,7 @@ from django.db import models
 from doctor.models import Doctor
 
 class CampaignModel(models.Model):
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     image = models.TextField(null=True, blank=True)
     description = models.TextField()
